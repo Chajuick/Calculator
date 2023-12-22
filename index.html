@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="./favicon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>계산기</title>
+  <link rel="stylesheet" href="Calc.css"/>
+</head>
+<body>
+  <form name="Calculator" action="" method="post">
+    <div id="calc_container">
+      <div id="calc_screen">
+        <input id="screen_before" class="screen" disabled="true"/>
+        <input id="screen_now" class="screen" value="0" disabled="true"/>
+      </div>
+      <div id="calc_btn">
+        <input type="button" class="btn" value="%"/>
+        <input type="button" class="btn" value="CE"/>
+        <input type="button" class="btn" value="C"/>
+        <input type="button" class="btn" value="/"/>
+        <input type="button" class="btn" value="7"/>
+        <input type="button" class="btn" value="8"/>
+        <input type="button" class="btn" value="9"/>
+        <input type="button" class="btn" value="x"/>
+        <input type="button" class="btn" value="4"/>
+        <input type="button" class="btn" value="5"/>
+        <input type="button" class="btn" value="6"/>
+        <input type="button" class="btn" value="-"/>
+        <input type="button" class="btn" value="1"/>
+        <input type="button" class="btn" value="2"/>
+        <input type="button" class="btn" value="3"/>
+        <input type="button" class="btn" value="+"/>
+        <input type="button" class="btn" value=" "/>
+        <input type="button" class="btn" value="0"/>
+        <input type="button" class="btn" value="."/>
+        <input type="button" class="btn" value="="/>
+      </div>
+    </div>
+  </form>
+
+  <script>
+    const CalScreenNow = document.getElementById("screen_now");
+    const CalScreenBefore = document.getElementById("screen_before");
+    const Calbtn = document.querySelectorAll(".btn")
+    const CalNumReg = /^[0-9]*$/;
+    var Operatior;
+    var temp;
+    const handleClickBtns = (item) => {
+        if(CalNumReg.test(item.target.value) === true){
+            if(CalScreenNow.value === '0'){
+              CalScreenNow.value = item.target.value;
+            } else {
+              CalScreenNow.value += item.target.value;
+            }
+        } else if(item.target.value === "."){
+            if(CalScreenNow.value.indexOf(".") === -1){
+              CalScreenNow.value += item.target.value;
+            } 
+        } else if(item.target.value === "CE"){
+            CalScreenNow.value = "0";
+        } else if(item.target.value === "C"){
+            CalScreenNow.value = "0";
+            CalScreenBefore.value = "";
+            Operatior = "";
+        } else if(item.target.value === "%"){
+            if (CalScreenNow.value !== "0") {
+                ContinueCalc("per");
+                Operatior = "per";
+            }
+        } else if(item.target.value === "/"){
+            if (CalScreenNow.value !== "0") {
+                ContinueCalc("div");
+                Operatior = "div";
+            }
+        } else if(item.target.value === "x"){
+            if (CalScreenNow.value !== "0") {
+                ContinueCalc("mul");
+                Operatior = "mul";
+            }
+        } else if(item.target.value === "-"){
+            if (CalScreenNow.value !== "0") {
+                ContinueCalc("sub");
+                Operatior = "sub";
+            }
+        } else if(item.target.value === "+"){
+            if (CalScreenNow.value !== "0") {
+                ContinueCalc("plus");
+                Operatior = "plus";
+            }
+        } else if(item.target.value === "="){
+            if(Operatior === "per"){
+              temp = CalScreenBefore.value;
+              CalScreenBefore.value = temp + CalScreenNow.value + " = ";
+              CalScreenNow.value = parseFloat(extractNumber(temp)) % parseFloat(CalScreenNow.value);
+            } else if(Operatior === "div"){
+              temp = CalScreenBefore.value;
+              CalScreenBefore.value = temp + CalScreenNow.value + " = ";
+              CalScreenNow.value = parseFloat(extractNumber(temp)) / parseFloat(CalScreenNow.value);
+            } else if(Operatior === "mul"){
+              temp = CalScreenBefore.value;
+              CalScreenBefore.value = temp + CalScreenNow.value + " = ";
+              CalScreenNow.value = parseFloat(extractNumber(temp)) * parseFloat(CalScreenNow.value);
+            } else if(Operatior === "sub"){
+              temp = CalScreenBefore.value;
+              CalScreenBefore.value = temp + CalScreenNow.value + " = ";
+              CalScreenNow.value = parseFloat(extractNumber(temp)) - parseFloat(CalScreenNow.value);
+            } else if(Operatior === "plus"){
+              temp = CalScreenBefore.value;
+              CalScreenBefore.value = temp + CalScreenNow.value + " = ";
+              CalScreenNow.value = parseFloat(extractNumber(temp)) + parseFloat(CalScreenNow.value);
+            };
+        };
+    };
+
+    function ContinueCalc(type) {
+        if (CalScreenBefore.value.length <= 0) {
+          switch (type) {
+          case "per":
+              CalScreenBefore.value = CalScreenNow.value + " % ";
+              break;
+          case "div":
+              CalScreenBefore.value = CalScreenNow.value + " ÷ ";
+              break;
+          case "mul":
+              CalScreenBefore.value = CalScreenNow.value + " x ";
+              break;
+          case "sub":
+              CalScreenBefore.value = CalScreenNow.value + " - ";
+              break;
+          case "plus":
+              CalScreenBefore.value = CalScreenNow.value + " + ";
+              break;
+          default:
+              CalScreenBefore.value = CalScreenNow.value;
+          }
+        } else {
+          if (CalScreenBefore.value.indexOf("=") === -1) {
+            switch (type) {
+                case "per":
+                    CalScreenBefore.value = parseFloat(extractNumber(CalScreenBefore.value)) % parseFloat(CalScreenNow.value) + " % ";
+                    break;
+                case "div":
+                    CalScreenBefore.value = parseFloat(extractNumber(CalScreenBefore.value)) / parseFloat(CalScreenNow.value) + " ÷ ";
+                    break;
+                case "mul":
+                    CalScreenBefore.value = parseFloat(extractNumber(CalScreenBefore.value)) * parseFloat(CalScreenNow.value) + " x ";
+                    break;
+                case "sub":
+                    CalScreenBefore.value = parseFloat(extractNumber(CalScreenBefore.value)) - parseFloat(CalScreenNow.value) + " - ";
+                    break;
+                case "plus":
+                    CalScreenBefore.value = parseFloat(extractNumber(CalScreenBefore.value)) + parseFloat(CalScreenNow.value) + " + ";
+                    break;
+                default:
+                    CalScreenBefore.value = CalScreenNow.value;
+            }
+          } else {
+            switch (type) {
+                case "per":
+                    CalScreenBefore.value = CalScreenNow.value + " % ";
+                    break;
+                case "div":
+                    CalScreenBefore.value = CalScreenNow.value + " ÷ ";
+                    break;
+                case "mul":
+                    CalScreenBefore.value = CalScreenNow.value + " x ";
+                    break;
+                case "sub":
+                    CalScreenBefore.value = CalScreenNow.value + " - ";
+                    break;
+                case "plus":
+                    CalScreenBefore.value = CalScreenNow.value + " + ";
+                    break;
+                default:
+                    CalScreenBefore.value = CalScreenNow.value;
+            };
+          };
+        };
+        CalScreenNow.value = "0";
+    };
+
+    Calbtn.forEach((item) => item.addEventListener('click', handleClickBtns));
+
+    const extractNumber = (str) => {
+        const match = str.match(/[\d.]+/);
+        return match ? match[0] : null;
+    };
+
+  </script>
+</body>
+</html>
